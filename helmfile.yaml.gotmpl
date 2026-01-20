@@ -33,14 +33,14 @@ releases:
   - name: ingress-nginx
     labels:
       skip_sync: "true"
-    namespace: {{ .Values.deps.ingressNginx.namespace | default .Values.namespace }}
+    namespace: {{ .Values.dependencies.ingressNginx.namespace | default .Values.namespace }}
     chart: ingress-nginx/ingress-nginx
-    installed: {{ .Values.deps.ingressNginx.enabled }}
+    installed: {{ .Values.dependencies.ingressNginx.enabled }}
     values:
       - controller:
-          replicaCount: {{ .Values.deps.ingressNginx.controller.replicaCount }}
+          replicaCount: {{ .Values.dependencies.ingressNginx.controller.replicaCount }}
           publishService:
-            enabled: {{ .Values.deps.ingressNginx.controller.publishService.enabled }}
+            enabled: {{ .Values.dependencies.ingressNginx.controller.publishService.enabled }}
 
   - name: mysql
     namespace: "{{ .Values.namespace }}"
@@ -49,22 +49,22 @@ releases:
     values:
       - https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml
       - auth:
-          database: "{{ .Values.deps.mysql.auth.database }}"
-          username: "{{ .Values.deps.mysql.auth.username }}"
+          database: "{{ .Values.dependencies.mysql.auth.database }}"
+          username: "{{ .Values.dependencies.mysql.auth.username }}"
         primary:
           persistence:
             enabled: true
             storageClass: "{{ .Values.storage.dbStorageClass }}"
             size: "{{ .Values.storage.dbSize }}"
-          resourcesPreset: "{{ .Values.deps.mysql.primary.resourcesPreset }}"
+          resourcesPreset: "{{ .Values.dependencies.mysql.primary.resourcesPreset }}"
         image:
-          repository: "{{ .Values.deps.mysql.image.repository }}"
-          tag: "{{ .Values.deps.mysql.image.tag }}"
+          repository: "{{ .Values.dependencies.mysql.image.repository }}"
+          tag: "{{ .Values.dependencies.mysql.image.tag }}"
         global:
           security:
-            allowInsecureImages: {{ .Values.deps.allowInsecureImages }}
+            allowInsecureImages: {{ .Values.dependencies.allowInsecureImages }}
         metrics:
-          enabled: {{ .Values.deps.mysql.metrics.enabled }}
+          enabled: {{ .Values.dependencies.mysql.metrics.enabled }}
     needs:
       - nfs-server
 
@@ -76,15 +76,15 @@ releases:
       - persistence:
           enabled: true
           storageClass: "{{ .Values.storage.brokerStorageClass }}"
-        resourcesPreset: "{{ .Values.deps.rabbitmq.resourcesPreset }}"
+        resourcesPreset: "{{ .Values.dependencies.rabbitmq.resourcesPreset }}"
         image:
-          repository: "{{ .Values.deps.rabbitmq.image.repository }}"
-          tag: "{{ .Values.deps.rabbitmq.image.tag }}"
+          repository: "{{ .Values.dependencies.rabbitmq.image.repository }}"
+          tag: "{{ .Values.dependencies.rabbitmq.image.tag }}"
         global:
           security:
-            allowInsecureImages: {{ .Values.deps.allowInsecureImages }}
+            allowInsecureImages: {{ .Values.dependencies.allowInsecureImages }}
         metrics:
-          enabled: {{ .Values.deps.rabbitmq.metrics.enabled }}
+          enabled: {{ .Values.dependencies.rabbitmq.metrics.enabled }}
     needs:
       - nfs-server
 
@@ -98,15 +98,15 @@ releases:
           persistence:
             enabled: true
             storageClass: "{{ .Values.storage.redisStorageClass }}"
-          resourcesPreset: "{{ .Values.deps.redis.master.resourcesPreset }}"
+          resourcesPreset: "{{ .Values.dependencies.redis.master.resourcesPreset }}"
         image:
-          repository: "{{ .Values.deps.redis.image.repository }}"
-          tag: "{{ .Values.deps.redis.image.tag }}"
+          repository: "{{ .Values.dependencies.redis.image.repository }}"
+          tag: "{{ .Values.dependencies.redis.image.tag }}"
         global:
           security:
-            allowInsecureImages: {{ .Values.deps.allowInsecureImages }}
+            allowInsecureImages: {{ .Values.dependencies.allowInsecureImages }}
         metrics:
-          enabled: {{ .Values.deps.redis.metrics.enabled }}
+          enabled: {{ .Values.dependencies.redis.metrics.enabled }}
     needs:
       - nfs-server
 

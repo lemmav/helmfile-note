@@ -16,8 +16,7 @@ storage:
   brokerStorageClass: "nfs"
   redisStorageClass: "nfs"
 
-
-deps:
+dependencies:
   allowInsecureImages: true
 
   ingressNginx:
