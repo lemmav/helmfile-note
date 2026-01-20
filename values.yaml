@@ -1,0 +1,142 @@
+features:
+  installNfs: true
+  installMysql: true
+  installRabbitmq: true
+  installRedis: true
+
+namespace: "default"
+
+storage:
+  docspaceStorageClass: "nfs"
+  nfsStorageClass: "do-block-storage"
+  provisionerBackingStorageClass: "standard"
+  nfsTotalSize: "50Gi"
+  dbSize: "40Gi"
+  dbStorageClass: "nfs"
+  brokerStorageClass: "nfs"
+  redisStorageClass: "nfs"
+
+
+deps:
+  allowInsecureImages: true
+
+  ingressNginx:
+    enabled: true
+    namespace: default
+
+    controller:
+      replicaCount: 1
+      publishService:
+        enabled: true
+  mysql:
+    auth:
+      database: "docspace"
+      username: "onlyoffice_user"
+    primary:
+      resourcesPreset: "large"
+    image:
+      repository: "bitnamilegacy/mysql"
+      tag: "9.4.0-debian-12-r1"
+    metrics:
+      enabled: false
+
+  redis:
+    master:
+      resourcesPreset: "none"
+    image:
+      repository: "bitnamilegacy/redis"
+      tag: "8.2.1-debian-12-r0"
+    metrics:
+      enabled: false
+
+  rabbitmq:
+    resourcesPreset: "none"
+    image:
+      repository: "bitnamilegacy/rabbitmq"
+      tag: "4.1.3-debian-12-r1"
+    metrics:
+      enabled: false
+
+docspace:
+  images:
+    repoPrefix: ""
+    tag: "3.6.1"
+
+
+  ingress:
+    enabled: true
+    host: ""
+    tenants: []
+    tls: 
+      enabled: true
+    annotations: {}
+    letsencrypt:
+      enabled: true
+      email: ""
+
+  components:
+    docs:
+      enabled: true
+
+    opensearch:
+      enabled: true
+
+    router:
+      enabled: true
+    api:
+      enabled: true
+    apiSystem:
+      enabled: true
+    notify:
+      enabled: true
+    studioNotify:
+      enabled: true
+    socket:
+      enabled: true
+    peopleServer:
+      enabled: true
+    files:
+      enabled: true
+    filesServices:
+      enabled: true
+    studio:
+      enabled: true
+    backup:
+      enabled: true
+    backupBackgroundTasks:
+      enabled: true
+    ssoauth:
+      enabled: true
+    clearEvents:
+      enabled: true
+    doceditor:
+      enabled: true
+    login:
+      enabled: true
+    healthchecks:
+      enabled: true
+    identityApi:
+      enabled: true
+    identityAuthorization:
+      enabled: true
+    sdk:
+      enabled: true
+    telegram:
+      enabled: true
+    management:
+      enabled: true
+    ai:
+      enabled: true
+    aiService:
+      enabled: true
+    aiMcp:
+      enabled: true
+
+  persistence:
+    storageClass: "nfs"
+
+  opensearch:
+    enabled: true
+    persistence:
+      storageClass: "nfs"
+      size: "10Gi"

@@ -1,0 +1,201 @@
+helmDefaults:
+  createNamespace: false
+
+repositories:
+  - name: onlyoffice
+    url: https://download.onlyoffice.com/charts/stable
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: nfs-server-provisioner
+    url: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
+
+
+environments:
+  default:
+    values:
+      - values.yaml
+---
+releases:
+  - name: nfs-server
+    namespace: "{{ .Values.namespace }}"
+    chart: nfs-server-provisioner/nfs-server-provisioner
+    installed: {{ .Values.features.installNfs | default true }}
+    values:
+      - persistence:
+          enabled: true
+          size: "{{ .Values.storage.nfsTotalSize }}"
+        storageClass:
+          name: "{{ .Values.storage.docspaceStorageClass }}"
+          mountOptions:
+            - noac
+            - vers=4
+
+  - name: ingress-nginx
+    labels:
+      skip_sync: "true"
+    namespace: {{ .Values.deps.ingressNginx.namespace | default .Values.namespace }}
+    chart: ingress-nginx/ingress-nginx
+    installed: {{ .Values.deps.ingressNginx.enabled }}
+    values:
+      - controller:
+          replicaCount: {{ .Values.deps.ingressNginx.controller.replicaCount }}
+          publishService:
+            enabled: {{ .Values.deps.ingressNginx.controller.publishService.enabled }}
+
+  - name: mysql
+    namespace: "{{ .Values.namespace }}"
+    chart: bitnami/mysql
+    installed: {{ .Values.features.installMysql | default true }}
+    values:
+      - https://raw.githubusercontent.com/ONLYOFFICE/Kubernetes-DocSpace/main/sources/mysql_values.yaml
+      - auth:
+          database: "{{ .Values.deps.mysql.auth.database }}"
+          username: "{{ .Values.deps.mysql.auth.username }}"
+        primary:
+          persistence:
+            enabled: true
+            storageClass: "{{ .Values.storage.dbStorageClass }}"
+            size: "{{ .Values.storage.dbSize }}"
+          resourcesPreset: "{{ .Values.deps.mysql.primary.resourcesPreset }}"
+        image:
+          repository: "{{ .Values.deps.mysql.image.repository }}"
+          tag: "{{ .Values.deps.mysql.image.tag }}"
+        global:
+          security:
+            allowInsecureImages: {{ .Values.deps.allowInsecureImages }}
+        metrics:
+          enabled: {{ .Values.deps.mysql.metrics.enabled }}
+    needs:
+      - nfs-server
+
+  - name: rabbitmq
+    namespace: "{{ .Values.namespace }}"
+    chart: bitnami/rabbitmq
+    installed: {{ .Values.features.installRabbitmq | default true }}
+    values:
+      - persistence:
+          enabled: true
+          storageClass: "{{ .Values.storage.brokerStorageClass }}"
+        resourcesPreset: "{{ .Values.deps.rabbitmq.resourcesPreset }}"
+        image:
+          repository: "{{ .Values.deps.rabbitmq.image.repository }}"
+          tag: "{{ .Values.deps.rabbitmq.image.tag }}"
+        global:
+          security:
+            allowInsecureImages: {{ .Values.deps.allowInsecureImages }}
+        metrics:
+          enabled: {{ .Values.deps.rabbitmq.metrics.enabled }}
+    needs:
+      - nfs-server
+
+  - name: redis
+    namespace: "{{ .Values.namespace }}"
+    chart: bitnami/redis
+    installed: {{ .Values.features.installRedis | default true }}
+    values:
+      - architecture: standalone
+        master:
+          persistence:
+            enabled: true
+            storageClass: "{{ .Values.storage.redisStorageClass }}"
+          resourcesPreset: "{{ .Values.deps.redis.master.resourcesPreset }}"
+        image:
+          repository: "{{ .Values.deps.redis.image.repository }}"
+          tag: "{{ .Values.deps.redis.image.tag }}"
+        global:
+          security:
+            allowInsecureImages: {{ .Values.deps.allowInsecureImages }}
+        metrics:
+          enabled: {{ .Values.deps.redis.metrics.enabled }}
+    needs:
+      - nfs-server
+
+  - name: docspace
+    namespace: "{{ .Values.namespace }}"
+    chart: onlyoffice/docspace
+    installed: true
+    values:
+      - images:
+          repoPrefix: "{{ .Values.docspace.images.repoPrefix }}"
+          tag: "{{ .Values.docspace.images.tag }}"
+
+        ingress:
+          enabled: {{ .Values.docspace.ingress.enabled }}
+          annotations: {{ toYaml .Values.docspace.ingress.annotations | nindent 12 }}
+          host: "{{ .Values.docspace.ingress.host }}"
+          hostname: "{{ .Values.docspace.ingress.host }}"
+          tenants: {{ toYaml .Values.docspace.ingress.tenants | nindent 12 }}
+          tls: 
+            enabled: {{ .Values.docspace.ingress.tls }}
+          letsencrypt:
+            enabled: {{ .Values.docspace.ingress.letsencrypt.enabled }}
+            email: "{{ .Values.docspace.ingress.letsencrypt.email }}"
+
+        docs:
+          enabled: {{ .Values.docspace.components.docs.enabled }}
+
+        opensearch:
+          enabled: {{ .Values.docspace.components.opensearch.enabled }}
+          persistence:
+            storageClass: "{{ .Values.docspace.opensearch.persistence.storageClass }}"
+            size: "{{ .Values.docspace.opensearch.persistence.size }}"
+
+        router:
+          enabled: {{ .Values.docspace.components.router.enabled }}
+        api:
+          enabled: {{ .Values.docspace.components.api.enabled }}
+        apiSystem:
+          enabled: {{ .Values.docspace.components.apiSystem.enabled }}
+        notify:
+          enabled: {{ .Values.docspace.components.notify.enabled }}
+        studioNotify:
+          enabled: {{ .Values.docspace.components.studioNotify.enabled }}
+        socket:
+          enabled: {{ .Values.docspace.components.socket.enabled }}
+        peopleServer:
+          enabled: {{ .Values.docspace.components.peopleServer.enabled }}
+        files:
+          enabled: {{ .Values.docspace.components.files.enabled }}
+        filesServices:
+          enabled: {{ .Values.docspace.components.filesServices.enabled }}
+        studio:
+          enabled: {{ .Values.docspace.components.studio.enabled }}
+        backup:
+          enabled: {{ .Values.docspace.components.backup.enabled }}
+        backupBackgroundTasks:
+          enabled: {{ .Values.docspace.components.backupBackgroundTasks.enabled }}
+        ssoauth:
+          enabled: {{ .Values.docspace.components.ssoauth.enabled }}
+        clearEvents:
+          enabled: {{ .Values.docspace.components.clearEvents.enabled }}
+        doceditor:
+          enabled: {{ .Values.docspace.components.doceditor.enabled }}
+        login:
+          enabled: {{ .Values.docspace.components.login.enabled }}
+        healthchecks:
+          enabled: {{ .Values.docspace.components.healthchecks.enabled }}
+        identityApi:
+          enabled: {{ .Values.docspace.components.identityApi.enabled }}
+        identityAuthorization:
+          enabled: {{ .Values.docspace.components.identityAuthorization.enabled }}
+        sdk:
+          enabled: {{ .Values.docspace.components.sdk.enabled }}
+        telegram:
+          enabled: {{ .Values.docspace.components.telegram.enabled }}
+        management:
+          enabled: {{ .Values.docspace.components.management.enabled }}
+        ai:
+          enabled: {{ .Values.docspace.components.ai.enabled }}
+        aiService:
+          enabled: {{ .Values.docspace.components.aiService.enabled }}
+        aiMcp:
+          enabled: {{ .Values.docspace.components.aiMcp.enabled }}
+
+        persistence:
+          storageClass: "{{ .Values.docspace.persistence.storageClass }}"
+    needs:
+      - nfs-server
+      - rabbitmq
+      - redis
+      - mysql
+
