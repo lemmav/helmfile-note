@@ -1,5 +1,4 @@
-# helmfile-note
-A repository describing the installation of DocSpace and Docs using Helmfile
+# Helmfile – Required Dependencies & Installation Links
 - [Helmfile – Required Dependencies \& Installation Links](#helmfile--required-dependencies--installation-links)
   - [Mandatory Dependencies](#mandatory-dependencies)
     - [1. Helm](#1-helm)
@@ -7,8 +6,6 @@ A repository describing the installation of DocSpace and Docs using Helmfile
     - [3. kubectl](#3-kubectl)
   - [Recommended Dependencies](#recommended-dependencies)
     - [4. helm-diff (Helm plugin)](#4-helm-diff-helm-plugin)
-
-# Helmfile – Required Dependencies & Installation Links
 
 ## Mandatory Dependencies
 
@@ -19,7 +16,6 @@ A repository describing the installation of DocSpace and Docs using Helmfile
 Installation guide:  
 https://helm.sh/docs/intro/install/
 
----
 
 ### 2. Helmfile
 - **Version**: latest stable
@@ -31,7 +27,6 @@ https://helmfile.readthedocs.io/en/latest/#installation
 Releases (manual install):  
 https://github.com/helmfile/helmfile/releases
 
----
 
 ### 3. kubectl
 - **Purpose**: Required to interact with the Kubernetes cluster and validate context.
@@ -39,7 +34,6 @@ https://github.com/helmfile/helmfile/releases
 Installation guide:  
 https://kubernetes.io/docs/tasks/tools/
 
----
 
 ## Recommended Dependencies
 
