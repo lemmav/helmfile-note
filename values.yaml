@@ -1,141 +1,225 @@
+# features defines installation of bundled dependencies
 features:
+  # features.installNfs defines installation of an NFS provisioner
   installNfs: true
+  # features.installMysql defines installation of MySQL
   installMysql: true
-  installRabbitmq: true
+  # features.installRabbitmq defines installation of RabbitMQ
+  installRabbitmq: true 
+  # features.installRedis defines installation of Redis
   installRedis: true
 
+# namespace defines deployment namespace
 namespace: "default"
 
+# storage defines storage-related settings
 storage:
-  docspaceStorageClass: "nfs"
+  # storage.nfsStorageClass defines the storage class used for the NFS server volumes
   nfsStorageClass: "do-block-storage"
-  provisionerBackingStorageClass: "standard"
-  nfsTotalSize: "50Gi"
-  dbSize: "40Gi"
+  # storage.docspaceStorageClass defines the storage class for DocSpace persistent volumes
+  docspaceStorageClass: "nfs"
+  # storage.dbStorageClass defines the storage class for database (MySQL) volumes
   dbStorageClass: "nfs"
+  # storage.brokerStorageClass defines the storage class for broker (RabbitMQ) volumes
   brokerStorageClass: "nfs"
+  # storage.redisStorageClass defines the storage class for Redis volumes
   redisStorageClass: "nfs"
+  # storage.nfsTotalSize defines the total size allocated for NFS storage
+  nfsTotalSize: "50Gi"
+  # storage.dbSize defines the size for database persistent volumes
+  dbSize: "40Gi"
 
+# dependencies defines the configuration for external dependencies
 dependencies:
+  # dependencies.allowInsecureImages allows pulling images from insecure registries
   allowInsecureImages: true
 
+  # dependencies.ingressNginx defines settings for the NGINX ingress controller
   ingressNginx:
+    # dependencies.ingressNginx.enabled enables the NGINX ingress controller
     enabled: true
+    # dependencies.ingressNginx.namespace specifies the namespace for the ingress controller
     namespace: default
 
+    # dependencies.ingressNginx.controller defines settings for the ingress controller
     controller:
+      # dependencies.ingressNginx.controller.replicaCount sets the number of replicas
       replicaCount: 1
+      # dependencies.ingressNginx.controller.publishService enables publishing the service
       publishService:
         enabled: true
+
+  # dependencies.mysql defines settings for the MySQL database
   mysql:
     auth:
+      # dependencies.mysql.auth.database specifies the database name
       database: "docspace"
+      # dependencies.mysql.auth.username specifies the username
       username: "onlyoffice_user"
     primary:
+      # dependencies.mysql.primary.resourcesPreset sets the resource preset for the primary instance
       resourcesPreset: "large"
     image:
+      # dependencies.mysql.image.repository specifies the MySQL image repository
       repository: "bitnamilegacy/mysql"
+      # dependencies.mysql.image.tag specifies the MySQL image tag
       tag: "9.4.0-debian-12-r1"
     metrics:
+      # dependencies.mysql.metrics.enabled enables or disables metrics
       enabled: false
 
+  # dependencies.redis defines settings for the Redis database
   redis:
     master:
+      # dependencies.redis.master.resourcesPreset sets the resource preset for the master instance
       resourcesPreset: "none"
     image:
+      # dependencies.redis.image.repository specifies the Redis image repository
       repository: "bitnamilegacy/redis"
+      # dependencies.redis.image.tag specifies the Redis image tag
       tag: "8.2.1-debian-12-r0"
     metrics:
+      # dependencies.redis.metrics.enabled enables or disables metrics
       enabled: false
 
+  # dependencies.rabbitmq defines settings for the RabbitMQ message broker
   rabbitmq:
+    # dependencies.rabbitmq.resourcesPreset sets the resource preset for RabbitMQ
     resourcesPreset: "none"
     image:
+      # dependencies.rabbitmq.image.repository specifies the RabbitMQ image repository
       repository: "bitnamilegacy/rabbitmq"
+      # dependencies.rabbitmq.image.tag specifies the RabbitMQ image tag
       tag: "4.1.3-debian-12-r1"
     metrics:
+      # dependencies.rabbitmq.metrics.enabled enables or disables metrics
       enabled: false
-
+# docspace defines the configuration for the DocSpace application
 docspace:
+  # docspace.images defines the image settings for DocSpace
   images:
+    # docspace.images.repoPrefix specifies the repository prefix for DocSpace images
     repoPrefix: ""
+    # docspace.images.tag specifies the tag for DocSpace images
     tag: "3.6.1"
 
-
+  # docspace.ingress defines the ingress settings for DocSpace
   ingress:
+    # docspace.ingress.enabled enables or disables the ingress for DocSpace
     enabled: true
+    # docspace.ingress.host specifies the host for the DocSpace ingress
     host: ""
+    # docspace.ingress.tenants defines the list of tenants for the ingress
     tenants: []
+    # docspace.ingress.tls defines TLS settings for the ingress
     tls: 
+      # docspace.ingress.tls.enabled enables or disables TLS for the ingress
       enabled: true
+    # docspace.ingress.annotations specifies additional annotations for the ingress
     annotations: {}
+    # docspace.ingress.letsencrypt defines settings for Let's Encrypt certificates
     letsencrypt:
+      # docspace.ingress.letsencrypt.enabled enables or disables Let's Encrypt for the ingress
       enabled: true
+      # docspace.ingress.letsencrypt.email specifies the email address for Let's Encrypt notifications
       email: ""
 
+  # docspace.components defines the configuration for DocSpace components
   components:
+    # docspace.components.docs enables or disables the Docs component
     docs:
       enabled: true
-
+    # docspace.components.opensearch enables or disables the OpenSearch component
     opensearch:
       enabled: true
-
+    # docspace.components.router enables or disables the Router component
     router:
       enabled: true
+    # docspace.components.api enables or disables the API component
     api:
       enabled: true
+    # docspace.components.apiSystem enables or disables the API System component
     apiSystem:
       enabled: true
+    # docspace.components.notify enables or disables the Notify component
     notify:
       enabled: true
+    # docspace.components.studioNotify enables or disables the Studio Notify component
     studioNotify:
       enabled: true
+    # docspace.components.socket enables or disables the Socket component
     socket:
       enabled: true
+    # docspace.components.peopleServer enables or disables the People Server component
     peopleServer:
       enabled: true
+    # docspace.components.files enables or disables the Files component
     files:
       enabled: true
+    # docspace.components.filesServices enables or disables the Files Services component
     filesServices:
       enabled: true
+    # docspace.components.studio enables or disables the Studio component
     studio:
       enabled: true
+    # docspace.components.backup enables or disables the Backup component
     backup:
       enabled: true
+    # docspace.components.backupBackgroundTasks enables or disables the Backup Background Tasks component
     backupBackgroundTasks:
       enabled: true
+    # docspace.components.ssoauth enables or disables the SSO Authentication component
     ssoauth:
       enabled: true
+    # docspace.components.clearEvents enables or disables the Clear Events component
     clearEvents:
       enabled: true
+    # docspace.components.doceditor enables or disables the Document Editor component
     doceditor:
       enabled: true
+    # docspace.components.login enables or disables the Login component
     login:
       enabled: true
+    # docspace.components.healthchecks enables or disables the Health Checks component
     healthchecks:
       enabled: true
+    # docspace.components.identityApi enables or disables the Identity API component
     identityApi:
       enabled: true
+    # docspace.components.identityAuthorization enables or disables the Identity Authorization component
     identityAuthorization:
       enabled: true
+    # docspace.components.sdk enables or disables the SDK component
     sdk:
       enabled: true
+    # docspace.components.telegram enables or disables the Telegram component
     telegram:
       enabled: true
+    # docspace.components.management enables or disables the Management component
     management:
       enabled: true
+    # docspace.components.ai enables or disables the AI component
     ai:
       enabled: true
+    # docspace.components.aiService enables or disables the AI Service component
     aiService:
       enabled: true
+    # docspace.components.aiMcp enables or disables the AI MCP component
     aiMcp:
       enabled: true
 
+  # docspace.persistence defines the persistence settings for DocSpace
   persistence:
+    # docspace.persistence.storageClass specifies the storage class for DocSpace persistence
     storageClass: "nfs"
 
+  # docspace.opensearch defines the configuration for the OpenSearch component
   opensearch:
+    # docspace.opensearch.enabled enables or disables the OpenSearch component
     enabled: true
+    # docspace.opensearch.persistence defines the persistence settings for OpenSearch
     persistence:
+      # docspace.opensearch.persistence.storageClass specifies the storage class for OpenSearch persistence
       storageClass: "nfs"
+      # docspace.opensearch.persistence.size specifies the size of the OpenSearch persistent volume
       size: "10Gi"
